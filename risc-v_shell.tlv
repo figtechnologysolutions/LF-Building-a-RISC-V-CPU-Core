@@ -45,8 +45,24 @@
    
    
    // YOUR CODE HERE
-   // ...
+   $pc[31:0] = >>1$next_pc;
+   $next_pc[31:0] = $reset ? 32'b0 : $pc + 4;
    
+   //Instantiate Instruction memory
+   `READONLY_MEM($pc, $$instr[31:0]);
+   
+   //Decode the instructions instr[6:0] makes up the opcode in RISC V
+   //First two bits $instr[1:0] must = 2'b11 to be valid but we assume all instructions are valid
+   //You can use 'x' and the '==?' operator in TL Verilog to indicate bits you don't care about matching 
+   $$is_u_instr = $instr[6:2] ==? 5'b0x101;
+   $$is_i_instr = $instr[6:2] ==? 5'b00xxx || 
+                  $instr[6:2] == 5'b11001;
+   $$is_s_instr = $instr[6:2] ==? 5'b0100x;
+   $$is_b_instr = $instr[6:2] == 5'b11000;
+   $$is_j_instr = $instr[6:2] == 5'b11011;
+   $$is_r_instr = $instr[6:2] ==? 5'b011x0 || 
+                  $instr[6:2] == 5'b01011 || 
+                  $instr[6:2] == 5'b10100;
    
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
